@@ -1,18 +1,27 @@
 import React from 'react';
 
+import Image from 'next/image';
+
 interface ProfileProps {
-  image: string;
-  size: 'small' | 'large';
+  image?: string;
+  size: 'sm' | 'lg';
 }
 
+const sizeList = {
+  sm: 'w-8 h-8',
+  lg: 'w-32 h-32'
+};
+
 export default function Profile({ image, size }: ProfileProps) {
-  /* 디자인에 따라서 사이즈 변경 */
-  const sizeClasses = size === 'large' ? 'w-32 h-32' : 'w-8 h-8';
+  // 디폴트 이미지
+  const defaultImage =
+    'https://noticon-static.tammolo.com/dgggcrkxq/image/upload/v1577544307/noticon/a7cmr2ibsfyuwcydpvny.png';
+
+  const imageSource = image || defaultImage;
 
   return (
-    <div className={`overflow-hidden rounded-full ${sizeClasses}`}>
-      {/* 추후 Image로 변경 */}
-      {image}
+    <div className={`relative overflow-hidden rounded-full ${sizeList[size]}`}>
+      <Image src={imageSource} alt="Profile" layout="fill" objectFit="cover" className="rounded-full" />
     </div>
   );
 }
