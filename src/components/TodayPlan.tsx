@@ -1,5 +1,7 @@
-import Image, { StaticImageData } from 'next/image';
+import { StaticImageData } from 'next/image';
 import Link from 'next/link';
+
+import ImageBox from './common/ImageBox';
 
 interface TodayPlanProps {
   ImageUrl: StaticImageData; // 추후 string으로 변경 예정 ( 서버에서 받아오는 이미지 )
@@ -11,12 +13,10 @@ export default function TodayPlan({ ImageUrl, TravelTitle, TravelDate, TravelSit
   return (
     <Link href="/">
       <div
-        className="left-5f lex align-center fixed bottom-0 left-2/4 h-1/4 w-1/4 
-      -translate-x-1/2 transform justify-center bg-teal-300"
+        className="flex-row-center fixed bottom-16 left-1/2 
+      -translate-x-1/2 justify-center gap-4 bg-teal-300 p-4"
       >
-        <div className="relative h-1/2 w-1/4 rounded-full">
-          <Image src={ImageUrl} fill alt="TravelImage" />
-        </div>
+        <ImageBox className="size-16 rounded-full" src={ImageUrl} alt="TravelImage" width={16} height={16} />
         <div>
           <h1>{TravelTitle}</h1>
           <p>{TravelDate}</p>

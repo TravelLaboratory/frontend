@@ -1,5 +1,4 @@
 import TodayPlan from '@/components/TodayPlan';
-
 import mockImage from '@/images/mockImage.jpg';
 
 export default function gaeun() {
