@@ -4,7 +4,7 @@ import interceptor from '@/apis/interceptors/interceptor';
 import { returnData } from '@/apis/utils/utils';
 
 const options: ReturnFetchDefaultOptions = {
-  baseUrl: 'https://be.travel-laboratory.site/api/v1',
+  baseUrl: 'https://be.travel-laboratory.site',
   headers: {
     'Content-Type': 'application/json',
     'authorization-token':
