@@ -1,13 +1,24 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+
+import useGetProfile from '@/apis/useTestService/useGetProfile';
 
 export default function ProfilePage() {
+  const { data, error, isLoading } = useGetProfile();
   const [activeTab, setActiveTab] = useState('여행 계획');
   const [isEditing, setIsEditing] = useState(false);
-  const [profileImage, setProfileImage] = useState('');
-  const [nickname, setNickname] = useState('트래블');
-  const [bio, setBio] = useState('한줄소개가 없습니다.');
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [name, setName] = useState('트래블');
+  const [introduce, setIntroduce] = useState('한줄소개가 없습니다.');
+
+  useEffect(() => {
+    if (data) {
+      setProfileImage(data.profile_img_url || '/icons/profile-default.svg');
+      setName(data.name);
+      setIntroduce(data.introduce || '한줄소개가 없습니다.');
+    }
+  }, [data]);
 
   const handleEditClick = () => {
     setIsEditing(true);
@@ -15,7 +26,6 @@ export default function ProfilePage() {
 
   const handleSaveClick = () => {
     setIsEditing(false);
-    // 추가적으로 API 호출 등을 통해 변경 사항을 저장할 수 있습니다.
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -37,6 +47,9 @@ export default function ProfilePage() {
     }
   };
 
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+
   return (
     <div className="container mx-auto p-4">
       <div className="flex">
@@ -50,14 +63,14 @@ export default function ProfilePage() {
                 )}
                 <input
                   type="text"
-                  value={nickname}
-                  onChange={(e) => setNickname(e.target.value)}
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                   className="mb-2 w-full rounded border px-2 py-1"
                 />
                 <input
                   type="text"
-                  value={bio}
-                  onChange={(e) => setBio(e.target.value)}
+                  value={introduce}
+                  onChange={(e) => setIntroduce(e.target.value)}
                   className="mb-4 w-full rounded border px-2 py-1"
                 />
                 <button type="button" className="btn-primary btn-md" onClick={handleSaveClick}>
@@ -71,8 +84,8 @@ export default function ProfilePage() {
                   alt="Profile"
                   className="mb-4 h-24 w-24 rounded-full object-cover"
                 />
-                <h2 className="text-xl font-semibold">{nickname}</h2>
-                <p className="text-gray-500">{bio}</p>
+                <h2 className="text-xl font-semibold">{name}</h2>
+                <p className="text-gray-500">{introduce}</p>
                 <button type="button" className="btn-solid btn-md mt-4" onClick={handleEditClick}>
                   편집하기
                 </button>
