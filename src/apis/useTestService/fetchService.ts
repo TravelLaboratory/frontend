@@ -30,7 +30,7 @@ const fetchService = returnFetch({ fetch: interceptor.logging(options) });
 
 const profileService = {
   getProfile: async () => {
-    const response = await fetchService(`/users/profile`, { method: 'GET' });
+    const response = await fetchService(`/api/v1/users/profile`, { method: 'GET' });
     const result = await response.json();
     return returnData(result);
   }
