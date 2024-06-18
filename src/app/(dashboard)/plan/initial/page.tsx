@@ -1,11 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 
 import { DateRange } from 'react-day-picker';
 import { Controller, useForm } from 'react-hook-form';
 
+import type { CityInfo } from '@/apis/useArticle/article.type';
 import BadgeWithDelete from '@/components/badge/badgeWithDelete';
+import CitySearchList from '@/components/CitySearchList';
 import ImageBox from '@/components/common/ImageBox';
 import ExpenseInput from '@/components/common/input/ExpenseInput';
 import Input from '@/components/common/input/Input';
@@ -15,15 +17,16 @@ import PlanInputTitle from '@/components/PlanInputTitle';
 import TagCheckboxList from '@/components/TagCheckboxList';
 import calendarIcon from '@/icons/calendar.svg?url';
 import SearchIcon from '@/icons/search.svg?url';
-import CITIES from '@/libs/constants/mockCity';
 import { TRAVEL_STYLE, WITH_WHOM } from '@/libs/constants/travelTags';
+import useDebounce from '@/libs/hooks/useDebounce';
+import useDropdown from '@/libs/hooks/useDropdown';
 
 const dateFormat = (date: Date) => `${date.getFullYear()}.${date.getMonth()}.${date.getDate()}`;
 
 function Plan() {
   const { control, register, getValues, handleSubmit } = useForm<{
     title: string;
-    places: string[];
+    places: CityInfo[];
     date: { from: Date; to: Date };
     expense: number;
     withWhom: string[];
@@ -32,14 +35,47 @@ function Plan() {
     defaultValues: { title: '', places: [], date: {}, withWhom: ['alone'], travelStyle: [] }
   });
   const [showCalendar, setShowCalendar] = useState(false);
-  const [showSearchList, setShowSearchList] = useState(false);
   const [searchString, setSearchString] = useState('');
+  const debounceSearchString = useDebounce(searchString, 300);
+
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const {
+    ref: searchListRef,
+    isDropdownOpened: isSearchListOpened,
+    handleDropdownOpen: handleSearchListOpen,
+    handleDropdownClose: handleSearchListClose
+  } = useDropdown<HTMLDivElement>({
+    onClickInside: () => {},
+    onClickOutside: (e) => {
+      if (searchInputRef.current && searchInputRef.current.contains(e?.target as Node)) {
+        return;
+      }
+      setSearchString('');
+    }
+  });
 
   const date = getValues('date');
   const title = register('title', { required: true });
   register('places', { validate: { moreThanOne: (placeList) => placeList.length > 0 } });
   register('date', { validate: { dateRange: (dateRange) => !!dateRange?.from && !!dateRange?.to } });
   register('withWhom', { validate: { moreThanOne: (whom) => whom.length > 0 } });
+
+  const handleSearchStringChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+    setSearchString(e.target.value);
+
+    if (e.target.value === '') {
+      handleSearchListClose();
+    }
+
+    if (e.target.value !== '') {
+      handleSearchListOpen();
+    }
+  };
+
+  const handleSearchListConfirmClick = () => {
+    handleSearchListClose();
+    setSearchString('');
+  };
 
   const onSubmit = (data: any) => {
     // 이후 api 작업
@@ -73,9 +109,9 @@ function Plan() {
                 className="w-full"
                 placeholder="도시명을 입력하세요"
                 value={searchString}
-                onChange={(e) => setSearchString(e.target.value)}
-                onFocus={() => setShowSearchList(true)}
+                onChange={handleSearchStringChange}
                 autoComplete="off"
+                ref={searchInputRef}
               />
               <ImageBox src={SearchIcon} alt="돋보기" className="h-[18px] w-[18px]" width={18} height={18} />
             </div>
@@ -86,55 +122,26 @@ function Plan() {
             render={({ field: { value, onChange } }) => {
               return (
                 <div className={`relative ${value.length ? 'pt-2' : ''}`}>
-                  <div className="flex-row-center gap-1">
-                    {value.map((place) => (
-                      <BadgeWithDelete onClickDeleteButton={() => onChange(value.filter((v) => v !== place))}>
-                        {place}
+                  <div className="flex-row-center flex-wrap gap-1">
+                    {value.map(({ placeId, city }) => (
+                      <BadgeWithDelete
+                        key={placeId}
+                        onClickDeleteButton={() =>
+                          onChange(value.filter(({ placeId: selectedPlaceId }) => selectedPlaceId !== placeId))
+                        }
+                      >
+                        {city}
                       </BadgeWithDelete>
                     ))}
                   </div>
-                  {showSearchList && (
-                    <div className="absolute top-0 rounded-[10px] bg-white-01 p-5 shadow-[0_0_10px_0_rgba(0,0,0,0.1)]">
-                      <ul className="mb-5 max-h-40 min-w-52 overflow-y-auto">
-                        {CITIES.filter(({ korean }) => korean.includes(searchString)).map(
-                          ({ id, korean, imageURL }) => (
-                            <li key={id} className="flex-row-center mb-2 justify-between">
-                              <div className="flex-row-center gap-1">
-                                <ImageBox src={imageURL} alt={korean} className="size-[18px]" width={18} height={18} />
-                                <span>{korean}</span>
-                              </div>
-                              {value.includes(korean) ? (
-                                <button
-                                  type="button"
-                                  className="border border-primary-01"
-                                  onClick={() => onChange(value.filter((v) => v !== korean))}
-                                >
-                                  취소
-                                </button>
-                              ) : (
-                                <button
-                                  type="button"
-                                  className="bg-gray-02"
-                                  onClick={() => onChange([...value, korean])}
-                                >
-                                  선택
-                                </button>
-                              )}
-                            </li>
-                          )
-                        )}
-                      </ul>
-                      <button
-                        type="button"
-                        className="h-12 w-full rounded-[5px] bg-primary-01 text-center text-white-01"
-                        onClick={() => {
-                          setShowSearchList(false);
-                          setSearchString('');
-                        }}
-                      >
-                        확인
-                      </button>
-                    </div>
+                  {isSearchListOpened && (
+                    <CitySearchList
+                      searchString={debounceSearchString}
+                      selectedCityList={value}
+                      onChangeCityList={onChange}
+                      onClickConfirmButton={handleSearchListConfirmClick}
+                      ref={searchListRef}
+                    />
                   )}
                 </div>
               );
