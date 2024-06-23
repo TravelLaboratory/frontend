@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 
 import { comment, replyComment, getComments, likeComment } from '@/components/textEditor/api/commentApi';
-import { logIn, getReview, createArticle, deleteReview, likeReview } from '@/components/textEditor/api/reviewApi';
+import { getReview, createArticle, deleteReview, likeReview } from '@/components/textEditor/api/reviewApi';
 
 interface Description {
   [key: string]: string;
@@ -24,11 +24,6 @@ interface ReviewData {
   like_count: number;
 }
 
-const logInData = {
-  username: 'jh0292jh@gmail.com',
-  password: 'Rlagudrnjs1!'
-};
-
 const articleData = {
   title: '일본여행',
   location: [
@@ -41,27 +36,16 @@ const articleData = {
   start_at: '2024-06-21',
   end_at: '2024-06-25',
   expense: 'string',
-  travel_companion: '가족과',
+  travel_companion: '혼자서',
   style: ['호캉스', '맛집 탐방']
 };
 
 function Page() {
   const [data, setData] = useState<ReviewData | null>(null);
 
-  const handleLogin = async () => {
-    try {
-      const response = await logIn(logInData);
-      console.log(response);
-      // Optionally, save the token for future requests
-      // localStorage.setItem('authToken', response.token);
-    } catch (error) {
-      console.error('Login failed:', error);
-    }
-  };
-
   const handleGetReview = async () => {
     try {
-      const response = await getReview(3);
+      const response = await getReview(1);
       console.log('Response:', response);
       const serializedValues = JSON.parse(response.description);
       console.log('Serialized Values:', serializedValues);
@@ -146,9 +130,6 @@ function Page() {
   return (
     <div>
       <div className="flex flex-row flex-wrap gap-10 p-10">
-        <button type="button" className="rounded-xl bg-blue-200 p-4" onClick={handleLogin}>
-          Log In
-        </button>
         <button type="button" className="rounded-xl bg-blue-200 p-4" onClick={handleCreateArticle}>
           Create Article
         </button>
@@ -179,7 +160,7 @@ function Page() {
       </div>
       <div className="pb-[30px]">{data && <pre>{JSON.stringify(data, null, 2)}</pre>}</div>
       {data?.representative_img_url && (
-        <img src={data.representative_img_url} alt="profile" className="h-[370px] w-auto object-cover" />
+        <img src={data.representative_img_url} alt="profile" className="h-[370px] w-full object-cover" />
       )}
       <div className="flex flex-col gap-20 px-[270px]">
         <div className="w-full text-[32px] font-bold ">{data?.title}</div>
