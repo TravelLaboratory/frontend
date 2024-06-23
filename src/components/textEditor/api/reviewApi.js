@@ -1,9 +1,9 @@
 import axios from 'axios';
+import Cookies from 'js-cookie';
 
 const API_BASE_URL = 'https://be.travel-laboratory.site/api/v1';
 
-const token =
-  'eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOjE3LCJleHAiOjE3MTkxMjg4NDN9.BGIEYrCtqw75AySp9koA6Nde6VFZmBexBELXoWsp7yc';
+const token = Cookies.get('authorization-token');
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -13,19 +13,9 @@ const api = axios.create({
   }
 });
 
-export const logIn = async (data) => {
-  try {
-    const response = await api.post('/auth/login', data);
-    return response.data;
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
-};
-
 export const createArticle = async (data) => {
   try {
-    const response = await api.post('register/article', data);
+    const response = await api.post('/article', data);
     return response.data;
   } catch (error) {
     console.error(error);
@@ -53,7 +43,7 @@ export const likeReview = async (id) => {
   }
 };
 
-export const poseReview = async (data) => {
+export const postReview = async (data) => {
   try {
     const response = await api.post('/review', data);
     return response.data;
