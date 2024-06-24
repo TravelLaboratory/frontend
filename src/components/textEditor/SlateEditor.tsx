@@ -125,12 +125,13 @@ const SlateEditor = forwardRef<SlateEditorRef, SlateEditorProps>(({ value, onCha
     <Slate editor={editor} initialValue={value} onChange={onChange}>
       <div>
         <Toolbar />
-        <div className={`px-40 ${representativeImage ? 'pt-[700px]' : 'pt-[300px]'}`}>
+        <div className={`px-[20px] md:px-[30px] xl:px-[280px] ${representativeImage ? 'pt-[650px]' : 'pt-[400px]'}`}>
           <Editable
             placeholder="글을 작성해보세요"
             renderElement={renderElement}
             renderLeaf={renderLeaf}
             onKeyDown={(event) => handleKeyDown(event, editor)}
+            className="focus:outline-none"
           />
         </div>
       </div>
