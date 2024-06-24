@@ -4,13 +4,13 @@
 
 'use client';
 
-import React, { useRef, useState, ChangeEvent } from 'react';
+import React, { useEffect, useRef, useState, ChangeEvent } from 'react';
 
-import Image from 'next/image'; // Importing Image from next/image
+import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import { Descendant } from 'slate';
 
-import { postReview } from '@/components/textEditor/api/reviewApi';
+import { postReview, getSchedule } from '@/components/textEditor/api/reviewApi';
 import DayButton from '@/components/textEditor/DayButton';
 import LoadingComponent from '@/components/textEditor/LoadingComponent';
 import SlateEditor, { SlateEditorRef } from '@/components/textEditor/SlateEditor';
@@ -24,66 +24,95 @@ interface ReviewData {
   status: string | 'ACTIVE';
 }
 
+interface Schedule {
+  visited_date: string;
+  place_names: { place_name: string }[];
+}
+
 export default function Page() {
-  // Article ID 가져오기
   const router = useRouter();
   const params = useParams();
   const articleId = Number(params.id);
 
-  // 임시 Days 넣기
-  const days = 5;
-  const [activeDay, setActiveDay] = useState<number>(1); // Default to the first day being active
+  const [days, setDays] = useState<number>(99);
+  const [activeDay, setActiveDay] = useState<number>(1);
   const [editorValues, setEditorValues] = useState<Descendant[][]>(
     Array(days).fill([{ type: 'paragraph', children: [{ text: '' }] }])
   );
   const editorRefs = useRef<(SlateEditorRef | null)[]>(Array(days).fill(null));
-  const [serializedValues, setSerializedValues] = useState<string[]>(Array(days).fill(''));
   const [representativeImage, setRepresentativeImage] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [title, setTitle] = useState<string>('');
   const [reviewData, setReviewData] = useState<ReviewData>({
-    article_id: articleId, // Example article_id
+    article_id: articleId,
     title: '',
     representative_img_url: undefined,
     description: '',
     status: 'ACTIVE'
   });
+  const [schedules, setSchedules] = useState<Schedule[]>([]);
 
-  // Day Button 클릭시에 activeDay 변경
+  const handleGetPlaces = async () => {
+    try {
+      setLoading(true);
+      const response = await getSchedule(articleId);
+      console.log('Response:', response);
+      setDays(response.total_days);
+      setSchedules(response.schedules);
+    } catch (error) {
+      console.error('Failed to get places:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    handleGetPlaces();
+  }, []);
+
+  useEffect(() => {
+    setEditorValues(Array(days).fill([{ type: 'paragraph', children: [{ text: '' }] }]));
+    editorRefs.current = Array(days).fill(null);
+  }, [days]);
+
   const handleDayButtonClick = (day: number) => {
     setActiveDay(day);
   };
 
-  // Editor 변경시에 editorValues 변경
   const handleEditorChange = (index: number, value: Descendant[]) => {
     const newValues = [...editorValues];
     newValues[index] = value;
     setEditorValues(newValues);
   };
 
-  // Button 클릭시에 editorValues를 serializedValues로 변경
   const handleButtonClick = () => {
     const allSerializedValues = editorRefs.current.map((ref) => {
       const serializedValue = ref?.getSerializedValue() || '';
       return serializedValue;
     });
-    const serializedObject = allSerializedValues.reduce(
-      (acc, value, index) => {
-        acc[index + 1] = value;
+
+    const combinedData = schedules.reduce(
+      (acc, schedule, index) => {
+        const dayKey = `Day ${index + 1}`;
+        const places = schedule.place_names.map((place) => place.place_name).join(' > ');
+        acc[dayKey] = {
+          schedule: places,
+          description: allSerializedValues[index]
+        };
         return acc;
       },
-      {} as { [key: number]: string }
+      {} as { [key: string]: { schedule: string; description: string } }
     );
 
-    setSerializedValues(allSerializedValues);
     setReviewData((prev) => ({
       ...prev,
-      description: JSON.stringify(serializedObject)
+      description: JSON.stringify(combinedData)
     }));
+
+    console.log('Review Data:', reviewData);
   };
 
-  // Title 변경시에 title 변경
   const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setTitle(e.target.value);
     setReviewData((prev) => ({
@@ -92,7 +121,6 @@ export default function Page() {
     }));
   };
 
-  // Representative Image 변경시에 image 변경
   const handleImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -116,7 +144,6 @@ export default function Page() {
     }
   };
 
-  // Representative Image 삭제시에 image 삭제
   const handleImageRemove = () => {
     setRepresentativeImage(null);
     setReviewData((prev) => ({
@@ -125,8 +152,7 @@ export default function Page() {
     }));
   };
 
-  // Review Upload
-  const postReivew = async () => {
+  const handlePostReview = async () => {
     try {
       const response = await postReview(reviewData);
       console.log('Response:', response);
@@ -135,20 +161,23 @@ export default function Page() {
     }
   };
 
+  if (loading) {
+    return <LoadingComponent />;
+  }
+
   return (
     <div>
       <div className="relative flex flex-col gap-10">
         <div className={`border-b-500 absolute ${representativeImage ? 'top-[70px]' : 'top-[200px]'} w-full`}>
           <div className="flex flex-col gap-[20px]">
-            {loading && <LoadingComponent />}
             <div className="relative w-full text-end">
               {representativeImage && (
                 <div>
                   <Image
                     src={representativeImage}
                     alt="Representative"
-                    width={700} // Adjust width accordingly
-                    height={400} // Adjust height accordingly
+                    width={700}
+                    height={400}
                     className="h-[370px] w-full rounded-md object-cover"
                   />
                 </div>
@@ -205,9 +234,20 @@ export default function Page() {
                   <DayButton activeDay={activeDay} day={index + 1} handleDayButtonClick={handleDayButtonClick} />
                 ))}
               </div>
-              <div className="w-full rounded-xl bg-gray-400 px-[32px] py-[24px] text-[16px]">
-                후쿠오카공항 / 스시사카바 / 프린스 스마트 인 하카타 / 무이치몬 하카타점
-              </div>
+              {[...Array(days)].map((_, index) => (
+                <div
+                  className={`w-full rounded-xl bg-gray-200 px-[32px] py-[24px] text-[16px] ${
+                    activeDay === index + 1 ? 'block' : 'hidden'
+                  }`}
+                >
+                  {schedules[index]?.place_names.map((place, placeIndex) => (
+                    <span>
+                      {place.place_name}
+                      {placeIndex < schedules[index].place_names.length - 1 && ' > '}
+                    </span>
+                  ))}
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -235,7 +275,7 @@ export default function Page() {
           </button>
           <button
             type="button"
-            onClick={postReivew}
+            onClick={handlePostReview}
             className="rounded bg-blue-500 p-2 text-slate-50 hover:bg-blue-700"
           >
             발행하기

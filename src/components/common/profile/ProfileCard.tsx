@@ -1,4 +1,6 @@
 /* eslint-disable max-len */
+/* eslint-disable no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useRef } from 'react';
 
 import Button from '@/components/common/button/Button';
