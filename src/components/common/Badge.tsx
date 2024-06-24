@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 import React from 'react';
 
-import { Category } from '@/components/modal/modalList/type';
+import { Category } from '@/libs/types/commonPlanType';
 
 type BadgeType = Category | '해시태그' | '태그';
 

@@ -8,9 +8,9 @@ import AsyncBoundary from '@/components/common/AsyncBoundary';
 import KakaoScript from '@/components/social/KaKaoScript';
 import { DropdownProvider } from '@/libs/contexts/DropdownContext';
 import ModalProvider from '@/libs/contexts/ModalProvider';
-import 'react-day-picker/dist/style.css';
-import '@/styles/globals.css';
 import { PasswordFindProvider } from '@/libs/contexts/passwordFindContext';
+import '@/styles/globals.css';
+import 'react-day-picker/dist/style.css';
 
 declare global {
   interface Window {

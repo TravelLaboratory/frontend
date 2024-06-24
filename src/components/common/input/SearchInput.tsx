@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import Input from './Input';
+import Input from '@/components/common/input/Input';
 
 interface SearchInputParams extends React.InputHTMLAttributes<HTMLInputElement> {
   className?: string;

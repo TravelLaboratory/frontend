@@ -16,17 +16,19 @@ export default function GNB() {
   const displayImageUrl = '';
 
   return (
-    <nav className="flex-row-center h-[3.75rem] w-full justify-between p-10 md:h-[4.5rem]">
+    <nav className="flex-row-center h-[3.75rem] w-full justify-between px-5 md:h-[4.5rem] md:px-7 xl:px-10">
       <Link href="/">
         <LogoSvg width={123} height={32} />
       </Link>
       <ul className="flex gap-5">
         <li>{!skipIcons && <SearchSvg width={24} height={24} />}</li>
-        <li>
-          <button type="button" className="font-header text-primary-01">
-            계획 생성하기
-          </button>
-        </li>
+        <Link href="/plan/initial">
+          <li>
+            <button type="button" className="font-header text-primary-01">
+              계획 생성하기
+            </button>
+          </li>
+        </Link>
         {hasCookie && (
           <Link href="/profile">
             <li>

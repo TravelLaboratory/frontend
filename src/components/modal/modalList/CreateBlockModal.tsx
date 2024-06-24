@@ -4,9 +4,10 @@ import { useState } from 'react';
 import Chip from '@/components/common/button/Chip';
 import Modal, { ModalProps } from '@/components/modal/Modal';
 import CreateBlockModalContent from '@/components/modal/modalList/CreateBlockModalContent';
-import { Category, OnEtcSelect, OnPlaceSelect, OnTransportSelect } from '@/components/modal/modalList/type';
 import { CATEGORY_LIST, DEFAULT_CATEGORY } from '@/libs/constants/modal';
 import { GoogleMapsApiReturn } from '@/libs/hooks/useGoogleMapsApi';
+import { Category } from '@/libs/types/commonPlanType';
+import { OnEtcSelect, OnPlaceSelect, OnTransportSelect } from '@/libs/types/modalType';
 
 export interface CreateBlockModalProps extends ModalProps, GoogleMapsApiReturn {
   onPlaceSelect?: OnPlaceSelect;
@@ -29,7 +30,7 @@ export default function CreateBlockModal({
 
   return (
     <Modal {...props}>
-      <p className="modal-h1 mb-[3.125rem] mt-5 text-center md:mb-[3.75rem] md:mt-0">블록 생성</p>
+      <p className="modal-h1 mb-[3.125rem] mt-5 text-center md:mb-[3.75rem] md:mt-0">일정 추가</p>
       {/* 종류 선택 */}
       <div className="mb-10">
         <div className="flex-row-center mb-3 gap-2">

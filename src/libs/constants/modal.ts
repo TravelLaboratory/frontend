@@ -1,4 +1,5 @@
-import { Category, CommonBlockDetailData } from '@/components/modal/modalList/type';
+import { Category } from '@/libs/types/commonPlanType';
+import { CommonBlockDetailData } from '@/libs/types/modalType';
 
 export const DEFAULT_CATEGORY = '숙소';
 export const CATEGORY_LIST: Category[] = ['숙소', '식당', '관광지', '액티비티', '교통', '기타'];

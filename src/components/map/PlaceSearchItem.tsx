@@ -2,12 +2,11 @@
 
 'use client';
 
+import Badge from '@/components/common/Badge';
 import Button from '@/components/common/button/Button';
 import ImageBox from '@/components/common/ImageBox';
 import ChevronSvg from '@/icons/chevron-custom.svg';
 import translatePlaceType from '@/libs/utils/translatePlaceType';
-
-import Badge from '../common/Badge';
 
 interface PlaceSearchItemProps {
   place: google.maps.places.PlaceResult;
@@ -27,7 +26,7 @@ export default function PlaceSearchItem({ place, onPlaceSelect = () => {} }: Pla
         <ImageBox
           className="size-[5.4375rem] min-w-[5.4375rem] rounded-md"
           placeholderClassName="size-[5.4375rem] min-w-[5.4375rem] rounded-md bg-gray-02"
-          src={place?.photos?.[0].getUrl({ maxWidth: 200, maxHeight: 200 }) || ''}
+          src={place?.photos?.[0].getUrl({ maxWidth: 87 * 4, maxHeight: 87 * 4 }) || ''}
           alt={place.name || 'Place Photo'}
           width={87}
           height={87}

@@ -1,7 +1,7 @@
 import { StaticImageData } from 'next/image';
 import Link from 'next/link';
 
-import ImageBox from './common/ImageBox';
+import ImageBox from '@/components/common/ImageBox';
 
 interface TodayPlanProps {
   ImageUrl: StaticImageData; // 추후 string으로 변경 예정 ( 서버에서 받아오는 이미지 )

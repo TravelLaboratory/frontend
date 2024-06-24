@@ -14,7 +14,8 @@ const config: Config = {
         'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))'
       },
       boxShadow: {
-        modal: '0 0 0.625rem 0 rgba(0, 0, 0, 0.10)'
+        modal: '0 0 0.625rem 0 rgba(0, 0, 0, 0.10)',
+        button: '0 0 0.5rem 0 rgba(0, 0, 0, 0.08)'
       },
       colors: {
         black: {
@@ -60,7 +61,8 @@ const config: Config = {
             '01': '#F35802',
             '02': '#FFF0EA'
           }
-        }
+        },
+        kakao: '#FEE500'
       }
     }
   },

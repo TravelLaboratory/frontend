@@ -1,6 +1,6 @@
 import React, { forwardRef } from 'react';
 
-import Input from './Input';
+import Input from '@/components/common/input/Input';
 
 const INPUT_STYLE = {
   default: 'peer bg-white-01 w-full h-12 px-3 pb-3 pt-[14px] rounded-[5px] border border-gray-02',

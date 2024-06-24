@@ -14,6 +14,19 @@ const interceptor: { [key: string]: ReturnFetch } = {
           return response;
         }
       }
+    }),
+  returnJson: (args) =>
+    returnFetch({
+      ...args,
+      interceptors: {
+        response: async (response) => {
+          const result = await response.json();
+          if (!response.ok) {
+            throw new Error(result.message || 'Error');
+          }
+          return result;
+        }
+      }
     })
 };
 

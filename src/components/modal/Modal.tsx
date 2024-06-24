@@ -14,6 +14,7 @@ export interface ModalProps {
   onAfterOpen?: ReactModal.OnAfterOpenCallback;
   onAfterClose?: () => void;
   className?: string;
+  sameMdPadding?: boolean;
 }
 
 /**
@@ -26,7 +27,14 @@ export interface ModalProps {
  * @param {string} className - (optional) Additional CSS class names for the modal container.
  */
 
-export default function Modal({ children, onClose, onAfterOpen, onAfterClose, className = '' }: ModalProps) {
+export default function Modal({
+  children,
+  onClose,
+  onAfterOpen,
+  onAfterClose,
+  className = '',
+  sameMdPadding
+}: ModalProps) {
   const modalRoot = document.querySelector<HTMLElement>('#modal-root') ?? document.body;
 
   return (
@@ -42,8 +50,10 @@ export default function Modal({ children, onClose, onAfterOpen, onAfterClose, cl
       parentSelector={() => modalRoot}
       appElement={modalRoot}
     >
-      <CloseSvg className="absolute right-5 top-5 size-5 cursor-pointer md:size-5" onClick={onClose} />
-      <div className="scrollbar-custom size-full max-h-[100vh] overflow-auto p-[1.25rem] max-md:scrollbar-hide md:overflow-auto md:p-[2.5rem]">
+      <CloseSvg className="absolute right-5 top-5 z-50 size-5 cursor-pointer md:size-5" onClick={onClose} />
+      <div
+        className={`scrollbar-custom size-full max-h-[100vh] overflow-auto p-5 max-md:scrollbar-hide ${!sameMdPadding && 'md:p-10'}`}
+      >
         {children}
       </div>
     </ReactModal>

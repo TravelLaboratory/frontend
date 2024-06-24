@@ -1,8 +1,8 @@
 import BlockDetailModalContentPlace from '@/components/modal/modalList/BlockDetailModalContentPlace';
 import BlockDetailModalContentTransport from '@/components/modal/modalList/BlockDetailModalContentTransport';
-import { EtcBlockDetailData, PlaceBlockDetailData, TransportBlockDetailData } from '@/components/modal/modalList/type';
 import { CATEGORY } from '@/libs/constants/modal';
 import { GoogleMapsApiReturn } from '@/libs/hooks/useGoogleMapsApi';
+import { EtcBlockDetailData, PlaceBlockDetailData, TransportBlockDetailData } from '@/libs/types/modalType';
 
 /* eslint-disable no-undef */
 interface BlockDetailModalContentProps extends GoogleMapsApiReturn {

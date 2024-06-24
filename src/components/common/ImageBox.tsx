@@ -28,7 +28,7 @@ export default function ImageBox({
   if (!src) {
     return (
       <div className={`overflow-hidden ${className}`}>
-        <div className={placeholderClassName} />
+        <div className={`size-full ${placeholderClassName}`} />
       </div>
     );
   }

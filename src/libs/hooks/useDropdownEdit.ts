@@ -2,9 +2,8 @@
 
 import { useEffect, useRef } from 'react';
 
-import { useDropdownState, useDropdownDispatch } from '@/contexts/DropdownContext';
+import { useDropdownDispatch, useDropdownState } from '@/contexts/DropdownContext';
 
-// 수정된 useDropdown, context api 사용
 const useDropdownEdit = (id: string) => {
   const ref = useRef<HTMLUListElement>(null);
   const state = useDropdownState();
@@ -14,7 +13,9 @@ const useDropdownEdit = (id: string) => {
 
   const handleDropdownOpen = () => {
     dispatch({ type: 'CLOSE_ALL', excludeId: id });
-    dispatch({ type: 'TOGGLE', id });
+    setTimeout(() => {
+      dispatch({ type: 'TOGGLE', id });
+    }, 0); // Delayed dispatch to allow state to settle
   };
 
   const handleDropdownClose = () => {
@@ -23,25 +24,22 @@ const useDropdownEdit = (id: string) => {
 
   const handleDropdownToggle = (e: MouseEvent) => {
     e.stopPropagation();
-    dispatch({ type: 'CLOSE_ALL', excludeId: id });
-    dispatch({ type: 'TOGGLE', id });
+    if (isDropdownOpened) {
+      handleDropdownClose();
+    } else {
+      handleDropdownOpen();
+    }
   };
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (!ref.current) return;
-      if (!ref.current.contains(e.target as Node)) {
-        dispatch({ type: 'CLOSE_ALL', excludeId: '' });
-      }
+      if (!ref.current || ref.current.contains(e.target as Node)) return;
+      dispatch({ type: 'CLOSE_ALL' });
     };
 
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
-  }, [ref, dispatch]);
-
-  useEffect(() => {
-    console.log('isDropdownOpened', isDropdownOpened);
-  }, [isDropdownOpened]);
+  }, [dispatch]);
 
   return { ref, isDropdownOpened, handleDropdownOpen, handleDropdownClose, handleDropdownToggle };
 };

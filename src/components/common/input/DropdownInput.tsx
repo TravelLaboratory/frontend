@@ -1,11 +1,10 @@
 import React from 'react';
 
+import Button from '@/components/common/button/Button';
 import DropdownButton from '@/components/common/button/DropdownButton';
 import Dropdown from '@/components/common/Dropdown';
 import useDropdownEdit from '@/libs/hooks/useDropdownEdit';
-import useResizeHeight from '@/libs/hooks/useResizeHeight';
-
-import Button from '../button/Button';
+import useResizeSize from '@/libs/hooks/useResizeSize';
 
 interface DropdownInputProps {
   id: string;
@@ -29,7 +28,7 @@ export default function DropdownInput({
   onClickInside
 }: DropdownInputProps) {
   const { ref, isDropdownOpened, handleDropdownToggle, handleDropdownClose } = useDropdownEdit(id);
-  const { divRef, divHeight } = useResizeHeight();
+  const { divRef, divHeight } = useResizeSize();
 
   const handleDropdownSelect = (e: any) => {
     onClickInside(e);

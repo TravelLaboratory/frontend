@@ -1,8 +1,9 @@
 import PlaceSearch from '@/components/map/PlaceSearch';
 import PlaceSearchTransport from '@/components/map/PlaceSearchTransport';
 import PlaceEtcInput from '@/components/modal/modalList/PlaceEtcInput';
-import { Category, OnEtcSelect, OnPlaceSelect, OnTransportSelect } from '@/components/modal/modalList/type';
 import { CATEGORY } from '@/libs/constants/modal';
+import { Category } from '@/libs/types/commonPlanType';
+import { OnEtcSelect, OnPlaceSelect, OnTransportSelect } from '@/libs/types/modalType';
 
 /* eslint-disable no-undef */
 interface CreateBlockModalContentProps {

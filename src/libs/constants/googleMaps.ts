@@ -1,7 +1,7 @@
 import { Libraries } from '@react-google-maps/api';
 
 import { Coordinate } from '@/components/map/type';
-import { Transport } from '@/components/modal/modalList/type';
+import { Transport } from '@/libs/types/commonPlanType.js';
 
 // 구글맵 API
 export const GOOGLE_MAPS = {
@@ -14,7 +14,7 @@ export const MAX_ZOOM = 18;
 
 // 맵 초기 위치
 export const DEFAULT_COORDINATE_LIST: Coordinate[] = [
-  { lat: 37.7749, lng: -122.4194 } // 도쿄역
+  { lat: 35.68123620000001, lng: 139.7671248 } // 도쿄
 ];
 
 // 라이브러리 목록

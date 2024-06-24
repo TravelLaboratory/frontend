@@ -1,58 +1,63 @@
 import React from 'react';
 
-/**
- * 블록 공통 타입입니다.
- * @param name string; 이름
- * @param tag string; 태그
- */
-export interface DefaultBlockProps extends React.HTMLAttributes<HTMLButtonElement> {
+import Badge from '@/components/common/Badge';
+import ImageBox from '@/components/common/ImageBox';
+import ClockSvg from '@/icons/clock.svg';
+import { MARKER_COLOR } from '@/libs/constants/mapStyle';
+import { Category, Transport } from '@/libs/types/commonPlanType';
+
+export interface CoreBlockProps extends React.HTMLAttributes<HTMLButtonElement> {
   name: string;
-  tag: string;
-}
-
-/**
- * 기본 정보를 포함하는 코어 블록입니다.
- * @param name string; 이름
- * @param tag string; 태그
- * @param route \{ start: string; end: string }; 출발지 및 도착지 객체
- * @param memo string; (optional) 메모
- * @param imageUrl string; (optional) 이미지 주소
- */
-export interface CoreBlockProps extends DefaultBlockProps {
-  route?: { start: string; end: string };
+  category: Category;
+  transport?: Transport;
+  index: number;
+  imageUrl?: string;
+  startAt: string;
+  duration: string;
   memo?: string;
-  children?: React.ReactNode;
 }
 
-/**
- * 기본 정보를 포함하는 코어 블록입니다.
- * @param name string; 이름
- * @param tag string; 태그
- * @param route \{ start: string; end: string }; 출발지 및 도착지 객체
- * @param memo string; (optional) 메모
- * @param imageUrl string; (optional) 이미지 주소
- */
-export default function CoreBlock({ name, tag, route, memo, children, onClick }: CoreBlockProps) {
+function CoreBlock({ index, name, category, memo, imageUrl, startAt, duration, onClick, ...props }: CoreBlockProps) {
+  const indexStyle = {
+    backgroundColor: MARKER_COLOR[category].bg,
+    color: MARKER_COLOR[category].text
+  };
+
   return (
-    <button
-      className="flex-row-center border-black w-full justify-between border border-solid p-4"
-      type="button"
-      onClick={onClick}
-    >
-      <div className="flex flex-col gap-2">
-        <p>{name}</p>
-        <div className="flex gap-2">
-          {/* 태그 컴포넌트 여기에 추가 */}
-          <div>{tag}</div>
-          {route && (
-            <div>
-              {route.start} - {route.end}
-            </div>
-          )}
+    <button className="w-full rounded-[0.3125rem] p-3 shadow-modal" type="button" onClick={onClick} {...props}>
+      <div className="flex w-full gap-2">
+        <div className="font-tag relative size-6 flex-shrink-0 rounded-full text-center" style={indexStyle}>
+          <p className="absolute-center">{index}</p>
         </div>
-        {memo && <p>{memo}</p>}
+        <div className="w-full">
+          <div className="flex-row-center mb-3 w-full justify-between gap-2">
+            <div className="flex flex-col items-start">
+              <p className="font-tag mb-2 text-gray-01">{startAt}</p>
+              <Badge className="mb-[0.375rem] inline-block" type={category}>
+                {category}
+              </Badge>
+              <p className="font-subtitle-2 mb-2 line-clamp-1">{name}</p>
+              <div className="font-caption-2 flex-row-center line-clamp-1 gap-[0.125rem] text-gray-01">
+                <ClockSvg width={16} height={16} />
+                <p className="leading-none">{duration}</p>
+              </div>
+            </div>
+            {imageUrl && (
+              <ImageBox
+                className="aspect-square size-full max-w-[6.4375rem] rounded-[0.3125rem]"
+                placeholderClassName="bg-gray-02"
+                src={imageUrl}
+                alt={imageUrl}
+                width={36}
+                height={36}
+              />
+            )}
+          </div>
+          {memo && <p className="font-caption-2 line-clamp-1">{memo}</p>}
+        </div>
       </div>
-      {children}
     </button>
   );
 }
+
+export default CoreBlock;

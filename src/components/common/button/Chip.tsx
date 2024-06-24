@@ -18,7 +18,7 @@ import classNames from 'classnames';
 const chipStyles = {
   base: 'flex px-5 py-1.75 justify-center items-center gap-2.5 rounded-full font-caption-1',
   selected: {
-    day: 'border bg-black-01 text-white-01',
+    day: 'border border-solid border-black-01 bg-black-01 text-white-01',
     default: 'border border-solid border-secondary-01 bg-white text-secondary-01'
   },
   unselected: {
@@ -35,17 +35,23 @@ type Variant = 'day' | 'default';
 type State = 'selected' | 'unselected';
 
 interface ChipProps {
+  className?: string;
   children: React.ReactNode;
   variant?: Variant;
   selected: boolean;
   onClick?: () => void;
 }
 
-export default function Chip({ children, variant = 'default', selected, onClick }: ChipProps) {
+export default function Chip({ className, children, variant = 'default', selected, onClick }: ChipProps) {
   const variantKey: Variant = variant || 'default';
   const stateKey: State = selected ? 'selected' : 'unselected';
 
-  const chipClass = classNames(chipStyles.base, chipStyles[stateKey][variantKey], chipStyles.height[variantKey]);
+  const chipClass = classNames(
+    chipStyles.base,
+    chipStyles[stateKey][variantKey],
+    chipStyles.height[variantKey],
+    className
+  );
 
   return (
     <button type="button" className={chipClass} onClick={onClick}>

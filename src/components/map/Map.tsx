@@ -1,5 +1,3 @@
-'use client';
-
 /* eslint-disable consistent-return */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-param-reassign */
@@ -9,51 +7,35 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-new */
 
-import React, { useState, useCallback, useEffect } from 'react';
+'use client';
+
+import React, { useCallback, useEffect, useState } from 'react';
 
 import { GoogleMap, GoogleMapProps } from '@react-google-maps/api';
 
 import { Coordinate } from '@/components/map/type';
-import { Category } from '@/components/modal/modalList/type';
-import { GOOGLE_MAPS, MAX_ZOOM } from '@/libs/constants/googleMaps';
-
-const MARKER_COLOR: { [key in Category]: { bg: string; text: string } } = {
-  숙소: {
-    bg: '#FB2F85',
-    text: '#FFEFF4'
-  },
-  식당: {
-    bg: '#F35802',
-    text: '#FFF0EA'
-  },
-  관광지: {
-    bg: '#9C27B0',
-    text: '#F4ECFF'
-  },
-  액티비티: {
-    bg: '#55B135',
-    text: '#F1FBED'
-  },
-  교통: {
-    bg: '#4F80FF',
-    text: '#DEEBFF'
-  },
-  기타: {
-    bg: '#F5BA07',
-    text: '#FFF6DC'
-  }
-};
+import { DEFAULT_COORDINATE_LIST, GOOGLE_MAPS, MAX_ZOOM } from '@/libs/constants/googleMaps';
+import { MARKER_COLOR } from '@/libs/constants/mapStyle';
+import { Category } from '@/libs/types/commonPlanType';
 
 interface MapProps extends GoogleMapProps {
   mapContainerStyle: React.CSSProperties;
-  coordinateList: Coordinate[];
-  category?: Category;
+  coordinateList?: (Coordinate | undefined)[];
+  markerCategoryList?: (Category | undefined)[];
+  alwaysRender?: boolean;
 }
 
-export default function Map({ mapContainerStyle, coordinateList, category = '교통' }: MapProps) {
+export default function Map({
+  mapContainerStyle,
+  coordinateList = [],
+  markerCategoryList = [],
+  alwaysRender = false
+}: MapProps) {
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [markers, setMarkers] = useState<google.maps.marker.AdvancedMarkerElement[]>([]);
   const [polyline, setPolyline] = useState<google.maps.Polyline | null>(null);
+
+  const center = coordinateList?.[0] || DEFAULT_COORDINATE_LIST[0];
 
   // 맵 load
   const handleOnLoad = useCallback(
@@ -79,11 +61,11 @@ export default function Map({ mapContainerStyle, coordinateList, category = '교
   // 커스텀 마커 스타일
   const createMarkerElement = (number: number) => {
     const markerDiv = document.createElement('div');
-    markerDiv.style.backgroundColor = MARKER_COLOR[category].bg;
+    markerDiv.style.backgroundColor = MARKER_COLOR[markerCategoryList?.[number - 1] || '교통'].bg;
     markerDiv.style.width = '2rem';
     markerDiv.style.height = '2rem';
     markerDiv.style.borderRadius = '50%';
-    markerDiv.style.color = MARKER_COLOR[category].text;
+    markerDiv.style.color = MARKER_COLOR[markerCategoryList?.[number - 1] || '교통'].text;
     markerDiv.style.font = 'Pretendard';
     markerDiv.style.fontWeight = '700';
     markerDiv.style.display = 'flex';
@@ -96,66 +78,78 @@ export default function Map({ mapContainerStyle, coordinateList, category = '교
   };
 
   useEffect(() => {
-    if (map && coordinateList.length > 0 && coordinateList[0]) {
-      const bounds = new window.google.maps.LatLngBounds();
+    if (!map) return;
 
-      // 기존 마커 초기화
-      markers.forEach((marker) => {
-        if (marker.map) {
-          marker.map = null;
-        }
+    const bounds = new window.google.maps.LatLngBounds();
+
+    // 기존 마커 초기화
+    markers.forEach((marker) => {
+      if (marker.map) {
+        marker.map = null;
+      }
+    });
+    setMarkers([]);
+
+    // 새로운 마커 추가
+    const newMarkers = coordinateList.map((coord, index) => {
+      if (!coord) return;
+      const marker = new google.maps.marker.AdvancedMarkerElement({
+        position: coord,
+        map,
+        content: createMarkerElement(index + 1)
       });
-      setMarkers([]);
+      bounds.extend(new window.google.maps.LatLng(coord.lat, coord.lng));
+      return marker;
+    });
+    const finalMarkers = newMarkers.filter(
+      (marker) => marker !== undefined
+    ) as google.maps.marker.AdvancedMarkerElement[];
+    setMarkers(finalMarkers);
 
-      // 새로운 마커 추가
-      const newMarkers = coordinateList.map((coord, index) => {
-        const marker = new google.maps.marker.AdvancedMarkerElement({
-          position: coord,
-          map,
-          content: createMarkerElement(index + 1)
-        });
-        bounds.extend(new window.google.maps.LatLng(coord.lat, coord.lng));
-        return marker;
-      });
-      setMarkers(newMarkers);
+    // 기존 폴리라인 초기화
+    if (polyline && polyline.getMap()) {
+      polyline.setMap(null);
+    }
 
-      // 기존 폴리라인 초기화
-      if (polyline && polyline.getMap()) {
-        polyline.setMap(null);
+    // 새로운 폴리라인 추가
+    const pathList = coordinateList.filter((coord) => coord !== undefined) as Coordinate[];
+    const newPolyline = new google.maps.Polyline({
+      path: pathList,
+      map,
+      strokeColor: '#4F80FF',
+      strokeOpacity: 1.0,
+      strokeWeight: 4
+    });
+    setPolyline(newPolyline);
+
+    // 마커 거리에 맞춰 줌 레벨 제어
+    map.fitBounds(bounds);
+
+    // idle 이벤트 리스너를 추가하여 맵 최대 줌 레벨 제어
+    const listener = window.google.maps.event.addListenerOnce(map, 'idle', () => {
+      const currentZoom = map.getZoom() || 0;
+      if (currentZoom > MAX_ZOOM) {
+        map.setZoom(MAX_ZOOM);
       }
 
-      // 새로운 폴리라인 추가
-      const newPolyline = new google.maps.Polyline({
-        path: coordinateList,
-        map,
-        strokeColor: '#4F80FF',
-        strokeOpacity: 1.0,
-        strokeWeight: 4
-      });
-      setPolyline(newPolyline);
+      const hasCoord = coordinateList.some((coord) => coord !== undefined);
 
-      // 마커 거리에 맞춰 줌 레벨 제어
-      map.fitBounds(bounds);
+      if (!hasCoord) {
+        map.setZoom(MAX_ZOOM);
+        map.setCenter(DEFAULT_COORDINATE_LIST[0]);
+      }
+    });
 
-      // idle 이벤트 리스너를 추가하여 맵 최대 줌 레벨 제어
-      const listener = window.google.maps.event.addListenerOnce(map, 'idle', () => {
-        const currentZoom = map.getZoom() || 0;
-        if (currentZoom > MAX_ZOOM) {
-          map.setZoom(MAX_ZOOM);
-        }
-      });
+    return () => window.google.maps.event.removeListener(listener);
+  }, [map, coordinateList, markerCategoryList]);
 
-      return () => window.google.maps.event.removeListener(listener);
-    }
-  }, [map, coordinateList, category]);
-
-  if (!coordinateList) return null;
-  if (coordinateList.length === 0) return null;
+  if (!coordinateList && !alwaysRender) return null;
+  if (coordinateList.length === 0 && !alwaysRender) return null;
 
   return (
     <GoogleMap
       mapContainerStyle={mapContainerStyle}
-      center={coordinateList[0]}
+      center={center}
       zoom={MAX_ZOOM}
       onLoad={handleOnLoad}
       onUnmount={handleOnUnmount}

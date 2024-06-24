@@ -1,39 +1,48 @@
-import React from 'react';
-
-import ImageBox from '@/components/common/ImageBox';
-import CoreBlock, { DefaultBlockProps } from '@/components/travelBlock/CoreBlock';
-
-/**
- * 교통 블록입니다.
- * @param name string; 이름
- * @param tag string; 태그
- * @param route \{ start: string; end: string }; 출발지 및 도착지 객체
- * @param memo string; (optional) 메모
- */
-export interface TransportBlockProps extends DefaultBlockProps {
-  route: { start: string; end: string };
-  memo?: string;
-}
+import CoreBlock, { CoreBlockProps } from '@/components/travelBlock/CoreBlock';
+import TransportBicycleUrl from '@/icons/transport-bicycle.svg?url';
+import TransportCarUrl from '@/icons/transport-car.svg?url';
+import TransportTrainUrl from '@/icons/transport-train.svg?url';
+import TransportWalkUrl from '@/icons/transport-walk.svg?url';
+import { Transport } from '@/libs/types/commonPlanType.js';
 
 /**
- * 교통 블록입니다.
+ * 숙소, 관광지, 식당, 액티비티, 기타 등의 블록입니다.
  * @param name string; 이름
  * @param tag string; 태그
- * @param route \{ start: string; end: string }; 출발지 및 도착지 객체
  * @param memo string; (optional) 메모
+ * @param imageUrl string; (optional) 이미지 주소
  */
-export default function TransportBlock({ name, tag, route, memo, onClick }: TransportBlockProps) {
-  const imageUrl: { [key: string]: string } = {
-    walk: 'https://picsum.photos/360/360',
-    subway: 'https://picsum.photos/360/360'
+function TransportBlock({
+  index,
+  name,
+  category,
+  transport,
+  memo,
+  startAt,
+  duration,
+  onClick,
+  ...props
+}: CoreBlockProps) {
+  const imageUrl: { [key in Transport]: string } = {
+    자동차: TransportCarUrl,
+    도보: TransportWalkUrl,
+    자전거: TransportBicycleUrl,
+    대중교통: TransportTrainUrl
   };
 
   return (
-    <CoreBlock name={name} tag={tag} route={route} memo={memo} onClick={onClick}>
-      {/* 이미지 크기 조절하기 */}
-      {imageUrl && (
-        <ImageBox className="h-full max-w-36" src={imageUrl[tag]} alt={imageUrl[tag]} width={36} height={36} />
-      )}
-    </CoreBlock>
+    <CoreBlock
+      index={index}
+      name={name}
+      category={category}
+      memo={memo}
+      startAt={startAt}
+      duration={duration}
+      onClick={onClick}
+      imageUrl={transport && imageUrl[transport]}
+      {...props}
+    />
   );
 }
+
+export default TransportBlock;

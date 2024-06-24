@@ -1,14 +1,13 @@
 /* eslint-disable no-undef */
 
-export type Category = '숙소' | '식당' | '관광지' | '액티비티' | '교통' | '기타';
-export type Transport = '자동차' | '도보' | '자전거' | '대중교통';
+import { Category, Transport } from '@/libs/types/commonPlanType.js';
 
 // 장소 선택 함수 타입
 export type OnPlaceSelectProps = {
   category: Category;
   place: google.maps.places.PlaceResult;
 };
-export type OnPlaceSelect = ({ category, place }: OnPlaceSelectProps) => void;
+export type OnPlaceSelect<T = any> = ({ category, place }: OnPlaceSelectProps & T) => void;
 
 export type OnTransportSelectProps = {
   category: Category;
@@ -16,10 +15,15 @@ export type OnTransportSelectProps = {
   place: google.maps.places.PlaceResult;
   secondPlace: google.maps.places.PlaceResult;
 };
-export type OnTransportSelect = ({ category, transport, place, secondPlace }: OnTransportSelectProps) => void;
+export type OnTransportSelect<T = any> = ({
+  category,
+  transport,
+  place,
+  secondPlace
+}: OnTransportSelectProps & T) => void;
 
 export type OnEtcSelectProps = { category: Category; name: string };
-export type OnEtcSelect = ({ category, name }: OnEtcSelectProps) => void;
+export type OnEtcSelect<T = any> = ({ category, name }: OnEtcSelectProps & T) => void;
 
 // 블록 데이터 타입
 export type DefaultCreatedBlockData = {
@@ -43,17 +47,25 @@ export type CommonBlockDetailData = {
 
 // 일정 상세 - 숙소, 식당, 관광지, 액티비티
 // placeId -> location, address, phone, homepage, photos[0,1,2]
-// place api에서 가져온 이미지 url이 일시적이기 때문에 어차피 한 번 호출해야 함
-// 그러면 호출할 때 가져올 수 있는 모든 정보를 활용해서 백엔드 데이터를 아끼는 게 좋음
 export type PlaceBlockDetailData = CommonBlockDetailData & {
   placeId: string;
+  lat: number;
+  lng: number;
+  address: string;
+  phone?: string;
+  homepage?: string;
 };
 
 // 일정 상세 - 교통
 export type TransportBlockDetailData = CommonBlockDetailData & {
   transport: Transport;
-  placeId: string;
-  secondPlaceId: string;
+  address: string;
+  lat: number;
+  lng: number;
+  secondPlaceName: string;
+  secondPlaceAddress: string;
+  secondPlaceLat: number;
+  secondPlaceLng: number;
 };
 
 // 일정 상세 - 기타
@@ -66,4 +78,10 @@ export type OnBlockDetailEditProps = {
   budget: string;
   memo?: string;
 };
-export type OnBlockDetailEdit = ({ startAt, duration, budget, memo }: OnBlockDetailEditProps) => void;
+export type OnBlockDetailEdit<T = any> = ({ startAt, duration, budget, memo }: OnBlockDetailEditProps & T) => void;
+
+// 비용 상세 편집 타입
+export type OnBudgetDetailEditProps = {
+  budget: string;
+};
+export type OnBudgetDetailEdit<T = any> = ({ budget }: OnBudgetDetailEditProps & T) => void;

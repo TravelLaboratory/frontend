@@ -9,16 +9,16 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 import ImageBox from '@/components/common/ImageBox';
 import DropdownInput from '@/components/common/input/DropdownInput';
 import SearchInput from '@/components/common/input/SearchInput';
 import EmptyResultMessage from '@/components/map/EmptyResultMessage';
 import PlaceSearchResult from '@/components/map/PlaceSearchResult';
-import { Transport } from '@/components/modal/modalList/type';
 import { TRANSPORT_LIST } from '@/libs/constants/googleMaps';
 import useGoogleMapsPlaceSearch from '@/libs/hooks/useGoogleMapsPlaceSearch';
+import { Transport } from '@/libs/types/commonPlanType.js';
 
 interface PlaceSearchTransportProps {
   className?: string;

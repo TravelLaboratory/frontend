@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import useToggleBookmark from '@/apis/useContentService/useToggleBookmark';
 import ImageBox from '@/components/common/ImageBox';
@@ -82,7 +82,7 @@ export default function TravelCard({
 
   return (
     <div
-      className="relative flex w-full max-w-[320px] flex-col overflow-hidden rounded-lg bg-white-01 shadow-[0_0_10px_0_rgba(0,0,0,0.08)] sm:max-w-[320px] sm:max-w-[730px] sm:flex-row"
+      className="relative flex w-full max-w-[320px] flex-col overflow-hidden rounded-lg bg-white-01 shadow-[0_0_10px_0_rgba(0,0,0,0.08)] sm:max-w-[730px] sm:flex-row"
       role="button"
       tabIndex={0}
       onClick={onClick}
