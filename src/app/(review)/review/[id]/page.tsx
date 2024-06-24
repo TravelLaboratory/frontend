@@ -6,11 +6,9 @@
 
 import React, { useState, useEffect } from 'react';
 
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 
-import { comment as addComment, getComments } from '@/components/textEditor/api/commentApi';
 import { getReview, deleteReview as deleteReviewApi } from '@/components/textEditor/api/reviewApi';
-import defaultProfile from '@/components/textEditor/icons/defaultProfile.png';
 
 interface ReviewData {
   user_id: number;
@@ -32,32 +30,11 @@ interface Schedule {
   description: string;
 }
 
-interface AddCommentData {
-  review_id: number;
-  reply_comment: string;
-}
-
-interface CommentData {
-  user_id: number;
-  profile_img_url: string | null;
-  nickname: string;
-  is_editable: boolean;
-  comment_id: number;
-  reply_comment: string;
-  created_at: string;
-  is_like: boolean;
-  like_count: number;
-}
-
 export default function Page() {
   const params = useParams();
   const reviewId = Number(params.id);
   const [data, setData] = useState<ReviewData | null>(null);
   const [parsedDescription, setParsedDescription] = useState<{ [key: string]: Schedule } | null>(null);
-  const [commentText, setCommentText] = useState<string>('');
-  const [comments, setComments] = useState<CommentData[]>([]);
-  const [totalComments, setTotalComments] = useState<number>(0);
-
   const handleGetReviewData = async () => {
     try {
       const response = await getReview(reviewId);
@@ -70,36 +47,8 @@ export default function Page() {
       console.error('Failed to get review:', error);
     }
   };
-
-  const handleGetComments = async () => {
-    try {
-      const response = await getComments(reviewId);
-      setComments(response.comments);
-      setTotalComments(response.total_comments);
-      console.log('Comments:', response);
-    } catch (error) {
-      console.error('Failed to get comments:', error);
-    }
-  };
-
-  const handleAddComment = async () => {
-    if (!commentText.trim()) return; // Do not submit empty comments
-    try {
-      const addCommentData: AddCommentData = {
-        review_id: reviewId,
-        reply_comment: commentText
-      };
-      await addComment(addCommentData);
-      setCommentText(''); // Clear the input after submission
-      handleGetComments(); // Fetch comments again to update the comments list
-    } catch (error) {
-      console.error('Failed to add comment:', error);
-    }
-  };
-
   useEffect(() => {
     handleGetReviewData();
-    handleGetComments();
   }, []);
 
   const renderDescription = () => {
@@ -132,62 +81,21 @@ export default function Page() {
   return (
     <div>
       {data?.representative_img_url && (
-        <img src={data.representative_img_url} alt="profile" className="h-[370px] w-full object-cover pb-[20px]" />
+        <img src={data.representative_img_url} alt="profile" className="h-[370px] w-full object-cover" />
       )}
-      <div className="flex flex-col px-[20px] pt-[20px] md:px-[30px] xl:px-[280px]">
+      <div className="pt-[20px]] flex flex-col px-[20px] md:px-[30px] xl:px-[280px]">
         <div className="flex flex-row justify-between">
-          <div className="w-full pb-[20px] text-[32px] font-bold">{data?.title}</div>
+          <div className="w-full text-[32px] font-bold">{data?.title}</div>
           <button type="button" onClick={handleDeleteReview} className="text-red-500">
             Delete
           </button>
         </div>
+
         <div className="flex flex-row items-center gap-4">
-          <div className="flex w-full flex-row gap-[20px] border-b-2 pb-[20px]">
-            <img
-              src={data?.profile_img_url || defaultProfile.src}
-              alt="Profile"
-              className="h-12 w-12 rounded-full object-cover"
-            />
-            <div className="flex flex-col">
-              <div>{data?.nickname}</div>
-              <div>{data?.created_at}</div>
-            </div>
-          </div>
+          {data?.profile_img_url && <img src={data.profile_img_url} alt="Profile" className="h-12 w-12 rounded-full" />}
+          <div className="w-full border-b-2">{data?.nickname}</div>
         </div>
-        <div className="mb-[60px] flex flex-col gap-10 border-b-2 pb-[60px] pt-[40px]">{renderDescription()}</div>
-        <div className="flex flex-col gap-10 pb-[100px]">
-          <div className="text-[32px] font-bold">
-            댓글 <span className="text-blue-500">{totalComments}</span>
-          </div>
-          <div className="flex w-full flex-row gap-2">
-            <input
-              type="text"
-              value={commentText}
-              onChange={(e) => setCommentText(e.target.value)}
-              placeholder="Add a comment"
-              className="w-full rounded border p-2"
-            />
-            <button type="button" onClick={handleAddComment} className="text-white rounded bg-blue-500 p-2 text-[16px]">
-              입력
-            </button>
-          </div>
-
-          {comments.map((comment) => (
-            <div key={comment.comment_id} className="flex flex-row gap-4">
-              <img
-                src={comment.profile_img_url || defaultProfile.src}
-                alt="Profile"
-                className="h-12 w-12 rounded-full object-cover"
-              />
-
-              <div className="flex flex-col">
-                <div>{comment.nickname}</div>
-                <div>{comment.reply_comment}</div>
-                <div className="text-sm text-gray-500">{comment.created_at}</div>
-              </div>
-            </div>
-          ))}
-        </div>
+        <div className="flex flex-col gap-10 pt-[20px]">{renderDescription()}</div>
       </div>
     </div>
   );
