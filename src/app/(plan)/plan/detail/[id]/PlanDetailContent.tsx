@@ -192,6 +192,7 @@ export default function PlanDetailContent({ className, planDetail, initList }: P
 
     if (selectedMenu === '후기 작성하기') {
       // 페이지 이동
+      router.push(`/write/${articleId}`);
       console.log('후가 작성 페이지 이동');
     }
 
