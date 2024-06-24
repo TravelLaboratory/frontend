@@ -9,7 +9,7 @@ export default function Checkbox({ id, children, ...rest }: CheckboxProps) {
   return (
     <div className="relative">
       <label htmlFor={id}>{children}</label>
-      <input type="checkbox" id={id} className="absolute inset-0 opacity-0" {...rest} />
+      <input type="checkbox" id={id} className="absolute inset-0 cursor-pointer opacity-0" {...rest} />
     </div>
   );
 }
